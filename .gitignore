@@ -1,0 +1,7 @@
+!.gitkeep
+/__pycache__
+/statistical_voice_conversion/wav/train/*
+/statistical_voice_conversion/wav/production/*
+/statistical_voice_conversion/mcep/*
+/statistical_voice_conversion/mcep_aligned/*
+/statistical_voice_conversion/train_result/*
