@@ -4,4 +4,6 @@
 /wav/production/*/*.wav
 /mcep/*/*.mcep
 /mcep_aligned/*/*/*.mcep
-/train_result/*/*/*
+/train_result/*/*.png
+/train_result/*/*.gmm
+/train_result/*/*.npy

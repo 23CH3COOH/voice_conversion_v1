@@ -2,7 +2,7 @@
 from common import m, a, run_command
 
 
-# wavファイル(wave_path)からメルケプストラムを抽出しmcep_pathに出力する
+'''wavファイル(wave_path)からメルケプストラムを抽出しmcep_pathに出力する'''
 def extract_mcep(wave_path, mcep_path):
     bcut = 'bcut +s -s 22 %s' % wave_path
     x2x_in = 'x2x +sf'

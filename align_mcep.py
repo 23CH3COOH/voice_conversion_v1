@@ -5,7 +5,7 @@ from dtw import dtw
 
 
 '''
-2つのmcepファイルin_path_1とin_path_2アライメント（時間同期）をとり、
+2つのmcepファイルin_path_1とin_path_2でアライメント（時間同期）をとり、
 それぞれout_path_1とout_path_2に出力する
 '''
 def align_mcep(in_path_1, in_path_2, out_path_1, out_path_2):
