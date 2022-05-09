@@ -10,13 +10,16 @@ def resynthesize(wav_path):
     _header = wav_path.replace('.wav', '.header')
     channels, frame_rate = get_wav_header(wav_path, out_file_path=_header)
 
+    print('Extracting pitch...')
     _pitch = wav_path.replace('.wav', '.pitch')
     wav_to_pitch(wav_path, _pitch)
 
+    print('Extracting mel cepstrum...')
     _mcep = wav_path.replace('.wav', '.mcep')
     # テキスト形式で出力すると最終出力のwavファイルが無音になる模様
     wav_to_mcep(wav_path, _mcep, binary=True)
 
+    print('Synthesizing...')
     _out_wav = wav_path.replace('.wav', '_resynthesized.wav')
     synthesize_to_wav(_pitch, _mcep, _out_wav, channels, frame_rate)
 
@@ -26,4 +29,5 @@ if __name__ == '__main__':
     for wav_path in glob(audio_folder + '*.wav'):
         if '_resynthesized.wav' in wav_path:
             continue
+        print('Start resynthesize: %s' % wav_path)
         resynthesize(wav_path)
