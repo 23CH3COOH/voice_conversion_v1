@@ -9,7 +9,7 @@ rawファイル(raw_path)に出力する
 '''
 def synthesize_to_raw(pitch_path, mcep_path, raw_path):
     excite = 'excite -p 80 %s' % pitch_path
-    mlsadf = 'mlsadf -m %d -a 0.42 -p 80 %s' % (m, mcep_path)
+    mlsadf = 'mlsadf -m %d -a %f -p 80 %s' % (m, a, mcep_path)
     clip = 'clips -y -32000 32000'
     x2x = 'x2x +fs > %s' % raw_path
     res = run_command([excite, mlsadf, clip, x2x])
