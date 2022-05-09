@@ -82,7 +82,7 @@ def convert_voice(wav_path_from, wav_path_to, gmm_path):
     # 変換元のピッチと変換したメルケプストラムから再合成
     print('synthesis ...')
     synthesize_to_wav(source_pitch_file, converted_mcep_file, wav_path_to,
-                      channel=1, sampling_rate=16000, delete_temp_raw=False)
+                      channels=1, sampling_rate=16000, delete_temp_raw=False)
 
     # 一時ファイルを削除
     os.remove(source_mcep_file)
