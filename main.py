@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from extract_mcep import extract_mcep
+from extract_mcep import wav_to_mcep
 from align_mcep import align_mcep
 from train_gmm import train_gmm
 from convert_voice import convert_voice
@@ -27,10 +27,10 @@ class VoiceConverter:
         for file in self.__train_files:
             wave_path = 'wav/train/{}/{}.wav'.format(self.__from, file)
             mcep_path = 'mcep/{}/{}.mcep'.format(self.__from, file)
-            extract_mcep(wave_path, mcep_path)
+            wav_to_mcep(wave_path, mcep_path)
             wave_path = 'wav/train/{}/{}.wav'.format(self.__to, file)
             mcep_path = 'mcep/{}/{}.mcep'.format(self.__to, file)
-            extract_mcep(wave_path, mcep_path)
+            wav_to_mcep(wave_path, mcep_path)
 
     def __align_mcep(self):
         outdir = 'mcep_aligned/{}_to_{}/'.format(self.__from, self.__to)

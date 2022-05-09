@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
+import numpy as np
 import subprocess
 import struct
-import numpy as np
-from scipy.stats import multivariate_normal
 import joblib
+from scipy.stats import multivariate_normal
+from extract_mcep import wav_to_mcep
+from extract_pitch import wav_to_pitch
+from synthesizer import synthesize_to_wav
 
 # メルケプストラム次数
 # 実際はパワー項を追加して26次元ベクトルになる
@@ -13,24 +16,9 @@ m = 25
 # GMMのコンポーネント数
 K = 32
 
-def _extract_mcep(wav_file, mcep_file, ascii=False):
-    if ascii:
-        cmd = "bcut +s -s 22 %s | x2x +sf | frame -p 80 | window | mcep -m %d -a 0.42 | x2x +fa%d > %s" % (wav_file, m, m + 1, mcep_file)
-    else:
-        cmd = "bcut +s -s 22 %s | x2x +sf | frame -p 80 | window | mcep -m %d -a 0.42 > %s" % (wav_file, m, mcep_file)
-    print(cmd)
-    res = subprocess.call(cmd, shell=True)
-    print('result:', res)
-
-def _extract_pitch(wav_file, pitch_file):
-    cmd = "bcut +s -s 22 %s | x2x +sf | pitch -a 1 -s 16 -p 80 > %s" % (wav_file, pitch_file)
-    print(cmd)
-    res = subprocess.call(cmd, shell=True)
-    print('result:', res)
-
 def convert_mcep(source_mcep_file, converted_mcep_file, gmm):
     source_mcep = np.loadtxt(source_mcep_file)
-    fp = open(converted_mcep_file, "wb")
+    fp = open(converted_mcep_file, 'wb')
 
     d = m + 1
 
@@ -72,28 +60,15 @@ def E(k, x, gmm, ss):
     d = m + 1
     return gmm.means_[k, d:] + np.dot(ss[k], x - gmm.means_[k, 0:d])
 
-def synthesis(pitch_file, mcep_file, wav_file):
-    cmd = "excite -p 80 %s | mlsadf -m %d -a 0.42 -p 80 %s | clips -y -32000 32000 | x2x +fs > temp.raw" % (pitch_file, m, mcep_file)
-    print(cmd)
-    res = subprocess.call(cmd, shell=True)
-    print('result:', res)
-
-    cmd = "sox -e signed-integer -c 1 -b 16 -r 16000 temp.raw %s" % (wav_file)
-    print(cmd)
-    res = subprocess.call(cmd, shell=True)
-    print('result:', res)
-
-    os.remove("temp.raw")
-
 def convert_voice(wav_path_from, wav_path_to, gmm_path):
     # 変換元のwavファイルからメルケプストラムとピッチを抽出
      # numpyで読みやすいようにアスキー形式で保存
     print('extract mcep ...')
     source_mcep_file = 'source.mcep_ascii'
-    _extract_mcep(wav_path_from, source_mcep_file, ascii=True)
+    wav_to_mcep(wav_path_from, source_mcep_file, binary=False)
     print('extract pitch ...')
     source_pitch_file = 'source.pitch'
-    _extract_pitch(wav_path_from, source_pitch_file)
+    wav_to_pitch(wav_path_from, source_pitch_file)
 
     # GMMをロード
     gmm = joblib.load(gmm_path)
@@ -106,7 +81,8 @@ def convert_voice(wav_path_from, wav_path_to, gmm_path):
 
     # 変換元のピッチと変換したメルケプストラムから再合成
     print('synthesis ...')
-    synthesis(source_pitch_file, converted_mcep_file, wav_path_to)
+    synthesize_to_wav(source_pitch_file, converted_mcep_file, wav_path_to,
+                      channel=1, sampling_rate=16000, delete_temp_raw=False)
 
     # 一時ファイルを削除
     os.remove(source_mcep_file)
