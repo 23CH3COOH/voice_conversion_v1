@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from glob import glob
 from audio_file_analyzer import get_wav_header
-from extract_mcep import wav_to_mcep
-from extract_pitch import wav_to_pitch
+from extract_pitch import wav_to_pitch, output_pitch_text, draw_pitch
+from extract_mcep import wav_to_mcep, output_mcep_text, draw_single_mcep
 from synthesizer import synthesize_to_wav
 
 
@@ -12,12 +12,20 @@ def resynthesize(wav_path):
 
     print('Extracting pitch...')
     _pitch = wav_path.replace('.wav', '.pitch')
+    _pitch_text = wav_path.replace('.wav', '.pitch_ascii')
+    _pitch_fig = wav_path.replace('.wav', '_pitch.png')
     wav_to_pitch(wav_path, _pitch)
+    output_pitch_text(_pitch, _pitch_text)
+    draw_pitch(_pitch_text, _pitch_fig)
 
     print('Extracting mel cepstrum...')
     _mcep = wav_path.replace('.wav', '.mcep')
-    # テキスト形式で出力すると最終出力のwavファイルが無音になる模様
-    wav_to_mcep(wav_path, _mcep, binary=True)
+    _mcep_text = wav_path.replace('.wav', '.mcep_ascii')
+    wav_to_mcep(wav_path, _mcep)
+    output_mcep_text(_mcep, _mcep_text)
+    draw_single_mcep(_mcep_text, 0, wav_path.replace('.wav', '_mcep_0.png'))
+    draw_single_mcep(_mcep_text, 1, wav_path.replace('.wav', '_mcep_1.png'))
+    draw_single_mcep(_mcep_text, 2, wav_path.replace('.wav', '_mcep_2.png'))
 
     print('Synthesizing...')
     _out_wav = wav_path.replace('.wav', '_resynthesized.wav')
