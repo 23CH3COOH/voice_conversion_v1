@@ -49,8 +49,8 @@ def draw_graph_two_screen(graph_items_1, graph_items_2, output_path):
         ax.set_title(graph_items.title)
     
     fig = plt.figure(figsize=(14.4, 5.4))
-    ax_1 = fig.add_subplot(2, 2, 1)
-    ax_2 = fig.add_subplot(2, 2, 2)
+    ax_1 = fig.add_subplot(1, 2, 1)
+    ax_2 = fig.add_subplot(1, 2, 2)
     draw_graph_one_side(ax_1, graph_items_1)
     draw_graph_one_side(ax_2, graph_items_2)
     fig.savefig(output_path)
@@ -87,3 +87,18 @@ def read_binary_file(file_path, split_length=None, one_record_bytes=4):
             print(msg % (file_path, split_length))
         return res.reshape(res.size // split_length, split_length)
     return res
+
+def write_binary_file(nd_array, file_path, format='f'):
+    values = nd_array.flatten()
+    f = open(file_path, 'wb')
+    for value in values:
+        f.write(struct.pack(format, value))
+    f.close()
+
+
+if __name__ == '__main__':
+    v = read_binary_file('other_test_file/clb.mcep', split_length=26)
+    print(v.shape, v)
+    write_binary_file(v, 'other_test_file/clb_resave.mcep')
+    w = read_binary_file('other_test_file/clb_resave.mcep', split_length=26)
+    print(w.shape, w)

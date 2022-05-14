@@ -7,92 +7,148 @@ from convert_voice import convert_voice
 from common import m
 
 
+wav_s = 'wav/train/%s/'
+mcep_s = 'mcep/%s/'
+mcep_text_s = 'mcep/%s/text/'
+aligned_mcep_sss = 'mcep_aligned/%s_to_%s/%s/'
+aligned_mcep_text_sss = 'mcep_aligned/%s_to_%s/%s/text/'
+aligned_mcep_graph_ssd = 'mcep_aligned/%s_to_%s/graph/%d-th/'
+train_ss = 'train_result/%s_to_%s/'
+wav_prod = 'wav/production/%s/'
+
+wavf_s = '%s.wav'
+mcepf_s = '%s.mcep'
+mcep_textf_s = '%s.mcep_ascii'
+pngf_s = '%s.png'
+gmmf = 'GMM.gmm'
+
 class VoiceConverter:
-    def __init__(self, conv_from, conv_to):
+    def __init__(self, conv_from, conv_to, output_visible_form=True):
         self.__from = conv_from
         self.__to = conv_to
+        self.__output_visible_form = output_visible_form
 
     def __search_common_wav_files(self):
-        wav_files_from = os.listdir('wav/train/{}/'.format(self.__from))
-        wav_files_to = os.listdir('wav/train/{}/'.format(self.__to))
+        wav_files_from = os.listdir(wav_s % self.__from)
+        wav_files_to = os.listdir(wav_s % self.__to)
         wav_files = list(set(wav_files_from) & set(wav_files_to))
         # 拡張子無しのファイル名リストの状態で保持しておく
         self.__train_files = [file.replace('.wav', '') for file in wav_files]
 
-    def __extract_mcep(self):
-        for target in [self.__from, self.__to]:
-            if not os.path.exists('mcep/{}/text/'.format(target)):
-                os.makedirs('mcep/{}/text/'.format(target))
-
-            for file in self.__train_files:
-                wave_path = 'wav/train/{}/{}.wav'.format(target, file)
-                mcep_path = 'mcep/{}/{}.mcep'.format(target, file)
-                text_path = 'mcep/{}/text/{}.mcep_ascii'.format(target, file)
-                wav_to_mcep(wave_path, mcep_path)
-                output_mcep_text(mcep_path, text_path)
-
-    def __align_mcep(self):
-        outdir = 'mcep_aligned/{}_to_{}/'.format(self.__from, self.__to)
-        if not os.path.exists(outdir + '{}/'.format(self.__from)):
-            os.makedirs(outdir + '{}/'.format(self.__from))
-        if not os.path.exists(outdir + '{}/'.format(self.__to)):
-            os.makedirs(outdir + '{}/'.format(self.__to))
-        for i in range(m + 1):
-            if not os.path.exists(outdir + 'graph/{:02}-th/'.format(i)):
-                os.makedirs(outdir + 'graph/{:02}-th/'.format(i))
-        text_dir = 'mcep/{}/text/{}.mcep_ascii'
+    def __output_extracted_mcep_to_text(self):
+        if not os.path.exists(mcep_text_s % self.__from):
+            os.makedirs(mcep_text_s % self.__from)
+        if not os.path.exists(mcep_text_s % self.__to):
+            os.makedirs(mcep_text_s % self.__to)
 
         for file in self.__train_files:
-            mcep_from = 'mcep/{}/{}.mcep'.format(self.__from, file)
-            mcep_to = 'mcep/{}/{}.mcep'.format(self.__to, file)
-            align_mcep_from = outdir + '{}/{}.mcep'.format(self.__from, file)
-            align_mcep_to = outdir + '{}/{}.mcep'.format(self.__to, file)
-            align_mcep(mcep_from, mcep_to, align_mcep_from, align_mcep_to)
-            for i in range(m + 1):
+            mcep_path = mcep_s % self.__from + mcepf_s % file
+            text_path = mcep_text_s % self.__from + mcep_textf_s % file
+            output_mcep_text(mcep_path, text_path)
+            mcep_path = mcep_s % self.__to + mcepf_s % file
+            text_path = mcep_text_s % self.__to + mcep_textf_s % file
+            output_mcep_text(mcep_path, text_path)
+
+    def __extract_mcep(self):
+        if not os.path.exists(mcep_s % self.__from):
+            os.makedirs(mcep_s % self.__from)
+        if not os.path.exists(mcep_s % self.__to):
+            os.makedirs(mcep_s % self.__to)
+
+        for file in self.__train_files:
+            wave_path = wav_s % self.__from + wavf_s % file
+            mcep_path = mcep_s % self.__from + mcepf_s % file
+            wav_to_mcep(wave_path, mcep_path)
+            wave_path = wav_s % self.__to + wavf_s % file
+            mcep_path = mcep_s % self.__to + mcepf_s % file
+            wav_to_mcep(wave_path, mcep_path)
+
+    def __output_aligned_mcep_to_text(self):
+        indir_from = aligned_mcep_sss % (self.__from, self.__to, self.__from)
+        indir_to = aligned_mcep_sss % (self.__from, self.__to, self.__to)
+        outdir_from = aligned_mcep_text_sss % (self.__from, self.__to, self.__from)
+        outdir_to = aligned_mcep_text_sss % (self.__from, self.__to, self.__to)
+        if not os.path.exists(outdir_from):
+            os.makedirs(outdir_from)
+        if not os.path.exists(outdir_to):
+            os.makedirs(outdir_to)
+
+        for file in self.__train_files:
+            mcep_path = indir_from + mcepf_s % file
+            text_path = outdir_from + mcep_textf_s % file
+            output_mcep_text(mcep_path, text_path)
+            mcep_path = indir_to + mcepf_s % file
+            text_path = outdir_to + mcep_textf_s % file
+            output_mcep_text(mcep_path, text_path)
+
+    def __output_aligned_mcep_to_graph(self):
+        prev_from = mcep_text_s % self.__from
+        prev_to = mcep_text_s % self.__to
+        result_from = aligned_mcep_text_sss % (self.__from, self.__to, self.__from)
+        result_to = aligned_mcep_text_sss % (self.__from, self.__to, self.__to)
+
+        for i in range(m + 1):
+            outdir = aligned_mcep_graph_ssd % (self.__from, self.__to, i)
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+
+            for file in self.__train_files:
                 items_1 = DrawingAlignedMcepsItems()
                 items_1.name = self.__from
-                items_1.mcep_path_prev = text_dir.format(self.__from, file)
-                items_1.mcep_path_result = align_mcep_from
+                items_1.mcep_path_prev = prev_from + mcep_textf_s % file
+                items_1.mcep_path_result = result_from + mcep_textf_s % file
                 items_2 = DrawingAlignedMcepsItems()
                 items_2.name = self.__to
-                items_2.mcep_path_prev = text_dir.format(self.__to, file)
-                items_2.mcep_path_result = align_mcep_to
-                out_path = outdir + 'graph/{:02}-th/{}.png'.format(i, file)
-                draw_aligned_mceps(items_1, items_2, i, out_path)
+                items_2.mcep_path_prev = prev_to + mcep_textf_s % file
+                items_2.mcep_path_result = result_to + mcep_textf_s % file
+                draw_aligned_mceps(items_1, items_2, i, outdir + pngf_s % file)
+
+    def __align_mcep(self):
+        outdir_from = aligned_mcep_sss % (self.__from, self.__to, self.__from)
+        outdir_to = aligned_mcep_sss % (self.__from, self.__to, self.__to)
+        if not os.path.exists(outdir_from):
+            os.makedirs(outdir_from)
+        if not os.path.exists(outdir_to):
+            os.makedirs(outdir_to)
+
+        for file in self.__train_files:
+            mcep_from = mcep_s % self.__from + mcepf_s % file
+            mcep_to = mcep_s % self.__to + mcepf_s % file
+            align_mcep_from = outdir_from + mcepf_s % file
+            align_mcep_to = outdir_to + mcepf_s % file
+            align_mcep(mcep_from, mcep_to, align_mcep_from, align_mcep_to)
 
     def __train_gmm(self):
-        outdir = 'train_result/{}_to_{}/'.format(self.__from, self.__to)
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-        
-        aligned_mcep = 'mcep_aligned/{}_to_{}/'.format(self.__from, self.__to)
-        aligned_mcep_from = aligned_mcep + '{}/'.format(self.__from)
-        aligned_mcep_to = aligned_mcep + '{}/'.format(self.__to)
-        files = os.listdir(aligned_mcep_from)
-        aligned_mcep_paths_from = [aligned_mcep_from + file for file in files]
-        aligned_mcep_paths_to = [aligned_mcep_to + file for file in files]        
-        train_gmm(aligned_mcep_paths_from, aligned_mcep_paths_to, outdir)
+        if not os.path.exists(train_ss % (self.__from, self.__to)):
+            os.makedirs(train_ss % (self.__from, self.__to))
+
+        mcep_from = aligned_mcep_sss % (self.__from, self.__to, self.__from)
+        mcep_to = aligned_mcep_sss % (self.__from, self.__to, self.__to)
+        paths_from = [mcep_from + mcepf_s % f for f in self.__train_files]
+        paths_to = [mcep_to + mcepf_s % f for f in self.__train_files]
+        train_gmm(paths_from, paths_to, train_ss % (self.__from, self.__to))
 
     def __convert_voice(self):
-        wav_dir_from = 'wav/production/{}/'.format(self.__from)
-        wav_dir_to = 'wav/production/{}/'.format(self.__to)
-        if not os.path.exists(wav_dir_from):
-            os.makedirs(wav_dir_from)
-        if not os.path.exists(wav_dir_to):
-            os.makedirs(wav_dir_to)
+        if not os.path.exists(wav_prod % self.__to):
+            os.makedirs(wav_prod % self.__to)
 
-        gmm = 'train_result/{}_to_{}/GMM.gmm'.format(self.__from, self.__to)
-        for file in os.listdir(wav_dir_from):
-            wav_path_from = wav_dir_from + file
-            wav_path_to = wav_dir_to + file
-            convert_voice(wav_path_from, wav_path_to, gmm)        
+        gmm_path = train_ss % (self.__from, self.__to) + gmmf
+        for file in os.listdir(wav_prod % self.__from):
+            wav_path_from = wav_prod % self.__from + file
+            wav_path_to = wav_prod % self.__to + file
+            convert_voice(wav_path_from, wav_path_to, gmm_path)
 
     def run(self):
         self.__search_common_wav_files()
         print('Extracting mel cepstrum...')
         self.__extract_mcep()
+        if self.__output_visible_form:
+            self.__output_extracted_mcep_to_text()
         print('Aligning mel cepstrum...')
         self.__align_mcep()
+        if self.__output_visible_form:
+            self.__output_aligned_mcep_to_text()
+            self.__output_aligned_mcep_to_graph()
         print('Training...')
         self.__train_gmm()
         print('Converting voice...')

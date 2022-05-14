@@ -1,12 +1,10 @@
-#coding: utf-8
+# -*- coding: utf-8 -*-
 import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 from sklearn import mixture
-from common import m
+from common import m, K, read_binary_file
 
-
-M = 32  # GMMのコンポーネント数
 
 '''変換元と変換先の特徴ベクトルを結合したデータを作成して返す'''
 def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
@@ -16,10 +14,10 @@ def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
 
     # mcepファイルをロード
     for path_1, path_2 in zip(aligned_mcep_paths_1, aligned_mcep_paths_2):
-        mcep1 = np.loadtxt(path_1)
-        mcep2 = np.loadtxt(path_2)
-        X = np.vstack((X, mcep1))
-        Y = np.vstack((Y, mcep2))
+        mcep_1 = read_binary_file(path_1, split_length=dim)
+        mcep_2 = read_binary_file(path_2, split_length=dim)
+        X = np.vstack((X, mcep_1))
+        Y = np.vstack((Y, mcep_2))
 
     # ダミー行を除く
     X = X[1:, :]
@@ -37,7 +35,7 @@ def train_gmm(aligned_mcep_paths_1, aligned_mcep_paths_2, outdir):
     np.save(outdir + 'Z.npy', Z)
 
     # 混合ガウスモデル
-    g = mixture.GaussianMixture(n_components=M, covariance_type='full')
+    g = mixture.GaussianMixture(n_components=K, covariance_type='full')
     g.fit(Z)
 
     # モデルをファイルに保存

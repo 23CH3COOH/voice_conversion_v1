@@ -2,7 +2,8 @@
 import numpy as np
 from scipy.spatial.distance import euclidean
 from dtw import dtw
-from common import m, GraphItems, draw_graph_two_screen, read_binary_file
+from common import m, GraphItems, draw_graph_two_screen
+from common import read_binary_file, write_binary_file
 
 
 class DrawingAlignedMcepsItems:
@@ -50,6 +51,6 @@ def align_mcep(in_path_1, in_path_2, out_path_1, out_path_2):
     aligned_mcep_1 = mcep_1[path[0]]
     aligned_mcep_2 = mcep_2[path[1]]
 
-    # 同期を取ったmcepをテキスト形式で書き込み
-    np.savetxt(out_path_1, aligned_mcep_1, fmt='%0.6f')
-    np.savetxt(out_path_2, aligned_mcep_2, fmt='%0.6f')
+    # 同期を取ったmcepを書き込み
+    write_binary_file(aligned_mcep_1, out_path_1)
+    write_binary_file(aligned_mcep_2, out_path_2)
