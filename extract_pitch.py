@@ -30,7 +30,7 @@ def wav_to_pitch(wave_path, pitch_path):
 
 
 if __name__ == '__main__':
-    path = 'resynthesis_test/aoi_uekibachi'  # 拡張子抜きのパス
+    path = 'other_test_file/aoi_uekibachi'  # 拡張子抜きのパス
     raw_to_pitch(path + '.raw', path + '.pitch')
     output_pitch_text(path + '.pitch', path + '.pitch_ascii')
     draw_pitch(path + '.pitch_ascii', path + '_pitch.png')

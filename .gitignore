@@ -5,9 +5,10 @@
 /mcep/*/*.mcep
 /mcep/*/text/*.mcep_ascii
 /mcep_aligned/*/*/*.mcep
+/mcep_aligned/*/*/text/*.mcep_ascii
 /mcep_aligned/*/graph/*-th/*.png
 /train_result/*/*.png
 /train_result/*/*.gmm
 /train_result/*/*.npy
 /resynthesis_test/*
-!/resynthesis_test/aoi_uekibachi.raw
+!/resynthesis_test/.gitkeep

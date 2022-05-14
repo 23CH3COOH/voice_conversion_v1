@@ -43,7 +43,7 @@ def wav_to_mcep(wave_path, mcep_path, add_periodogram=True):
 
 
 if __name__ == '__main__':
-    path = 'resynthesis_test/aoi_uekibachi'  # 拡張子抜きのパス
+    path = 'other_test_file/aoi_uekibachi'  # 拡張子抜きのパス
     raw_to_mcep(path + '.raw', path + '.mcep')
     output_mcep_text(path + '.mcep', path + '.mcep_ascii')
     draw_single_mcep(path + '.mcep_ascii', 0, path + '_mcep_0order.png')
