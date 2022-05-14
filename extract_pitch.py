@@ -17,6 +17,7 @@ def raw_to_pitch(raw_path, pitch_path, frame_rate=16000):
     res = run_command([x2x_in, pitch])
 
 '''wavファイル(wave_path)からピッチを抽出しpitch_pathに出力する'''
+# frame_rateは読み込むWavファイルに合わせず16000[Hz]のままの方がいいみたい？
 def wav_to_pitch(wave_path, pitch_path, frame_rate=16000):
     bcut = 'bcut +s -s 22 %s' % wave_path
     x2x_in = 'x2x +sf'

@@ -5,10 +5,6 @@ import subprocess
 import struct
 
 
-m = 25  # メルケプストラム次数（実際はパワー項を追加して26次元ベクトルになる）
-a = 0.42  # all-pass constant
-K = 32  # GMMのコンポーネント数
-
 class GraphItems:
     def __init__(self):
         self.arrays = []
@@ -47,7 +43,7 @@ def draw_graph_two_screen(graph_items_1, graph_items_2, output_path):
         ax.set_xlabel(graph_items.xlabel)
         ax.set_ylabel(graph_items.ylabel)
         ax.set_title(graph_items.title)
-
+    
     fig = plt.figure(figsize=(14.4, 5.4))
     ax_1 = fig.add_subplot(1, 2, 1)
     ax_2 = fig.add_subplot(1, 2, 2)
