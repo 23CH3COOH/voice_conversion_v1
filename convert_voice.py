@@ -13,7 +13,7 @@ from common import read_binary_file
 
 def convert_mcep(source_mcep_file, converted_mcep_file, gmm, m, K):
     d = m + 1
-    
+
     source_mcep = read_binary_file(source_mcep_file, split_length=d)
     fp = open(converted_mcep_file, 'wb')
 

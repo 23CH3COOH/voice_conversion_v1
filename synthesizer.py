@@ -3,6 +3,7 @@ import os
 from audio_file_converter import raw_to_wav
 from common import m, a, run_command
 
+
 '''
 ピッチ(pitch_path)とメルケプストラム(mcep_path)から音声を合成し
 rawファイル(raw_path)に出力する

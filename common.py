@@ -47,7 +47,7 @@ def draw_graph_two_screen(graph_items_1, graph_items_2, output_path):
         ax.set_xlabel(graph_items.xlabel)
         ax.set_ylabel(graph_items.ylabel)
         ax.set_title(graph_items.title)
-    
+
     fig = plt.figure(figsize=(14.4, 5.4))
     ax_1 = fig.add_subplot(1, 2, 1)
     ax_2 = fig.add_subplot(1, 2, 2)

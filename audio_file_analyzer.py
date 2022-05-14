@@ -31,3 +31,7 @@ def get_wav_header(wave_path, out_file_path=None, return_all=False):
         return channels, frame_rate, frame_su, time_length, sample_byte
     else:
         return channels, frame_rate
+
+
+if __name__ == '__main__':
+    print(get_wav_header('other_test_file/aoi_uekibachi.wav'))
