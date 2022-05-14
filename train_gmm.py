@@ -27,7 +27,7 @@ def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
     Z = np.hstack((X, Y))
     return Z
 
-def train_gmm(aligned_mcep_paths_1, aligned_mcep_paths_2, outdir):
+def train_gmm(aligned_mcep_paths_1, aligned_mcep_paths_2, outdir, m=25, K=32):
     # 変換元と変換先の特徴ベクトルを結合したデータを作成
     Z = make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, m + 1)
 

@@ -95,6 +95,13 @@ def write_binary_file(nd_array, file_path, format='f'):
         f.write(struct.pack(format, value))
     f.close()
 
+def binary_to_text(binary_path, text_path, split_length=None):
+    x2x_in = 'x2x %s' % binary_path
+    x2x_out = 'x2x +fa > %s' % text_path
+    if split_length is not None:
+        x2x_out = 'x2x +fa%d > %s' % (split_length, text_path)
+    res = run_command([x2x_in, x2x_out])
+
 
 if __name__ == '__main__':
     v = read_binary_file('other_test_file/clb.mcep', split_length=26)
