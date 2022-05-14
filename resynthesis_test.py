@@ -15,7 +15,7 @@ def resynthesize(wav_path, m, a, e):
     _pitch = wav_path.replace('.wav', '.pitch')
     _pitch_text = wav_path.replace('.wav', '.pitch_ascii')
     _pitch_fig = wav_path.replace('.wav', '_pitch.png')
-    wav_to_pitch(wav_path, _pitch)
+    wav_to_pitch(wav_path, _pitch, frame_rate)
     binary_to_text(_pitch, _pitch_text)
     draw_pitch(_pitch_text, _pitch_fig)
 

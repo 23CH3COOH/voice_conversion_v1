@@ -11,16 +11,16 @@ def draw_pitch(text_pitch_path, figure_path):
     draw_graph(graph_items, figure_path)
 
 '''rawファイル(raw_path)からピッチを抽出しpitch_pathに出力する'''
-def raw_to_pitch(raw_path, pitch_path):
+def raw_to_pitch(raw_path, pitch_path, frame_rate=16000):
     x2x_in = 'x2x +sf %s' % raw_path
-    pitch = 'pitch -a 1 -s 16 -p 80 > %s' % pitch_path
+    pitch = 'pitch -a 1 -s %f -p 80 > %s' % (frame_rate / 1000.0, pitch_path)
     res = run_command([x2x_in, pitch])
 
 '''wavファイル(wave_path)からピッチを抽出しpitch_pathに出力する'''
-def wav_to_pitch(wave_path, pitch_path):
+def wav_to_pitch(wave_path, pitch_path, frame_rate=16000):
     bcut = 'bcut +s -s 22 %s' % wave_path
     x2x_in = 'x2x +sf'
-    pitch = 'pitch -a 1 -s 16 -p 80 > %s' % pitch_path
+    pitch = 'pitch -a 1 -s %f -p 80 > %s' % (frame_rate / 1000.0, pitch_path)
     res = run_command([bcut, x2x_in, pitch])
 
 
