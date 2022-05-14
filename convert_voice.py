@@ -8,29 +8,27 @@ from scipy.stats import multivariate_normal
 from extract_mcep import wav_to_mcep
 from extract_pitch import wav_to_pitch
 from synthesizer import synthesize_to_wav
+from common import m, K, read_binary_file
 
-# メルケプストラム次数
-# 実際はパワー項を追加して26次元ベクトルになる
-m = 25
-
-# GMMのコンポーネント数
-K = 32
 
 def convert_mcep(source_mcep_file, converted_mcep_file, gmm):
-    source_mcep = np.loadtxt(source_mcep_file)
-    fp = open(converted_mcep_file, 'wb')
-
     d = m + 1
+    
+    source_mcep = read_binary_file(source_mcep_file, split_length=d)
+    #source_mcep = np.loadtxt(source_mcep_file)
+    fp = open(converted_mcep_file, 'wb')
 
     # 式9の多次元正規分布のオブジェクトを作成しておく
     gauss = []
     for k in range(K):
-        gauss.append(multivariate_normal(gmm.means_[k, 0:d], gmm.covariances_[k, 0:d, 0:d]))
+        gauss.append(multivariate_normal(gmm.means_[k, 0:d],
+                                         gmm.covariances_[k, 0:d, 0:d]))
 
     # 式11のフレームtに依存しない項を計算しておく
     ss = []
     for k in range(K):
-        ss.append(np.dot(gmm.covariances_[k, d:, 0:d], np.linalg.inv(gmm.covariances_[k, 0:d, 0:d])))
+        ss.append(np.dot(gmm.covariances_[k, d:, 0:d],
+                         np.linalg.inv(gmm.covariances_[k, 0:d, 0:d])))
 
     # 各フレームをGMMで変形する
     for t in range(len(source_mcep)):
@@ -62,11 +60,8 @@ def E(k, x, gmm, ss):
 
 def convert_voice(wav_path_from, wav_path_to, gmm_path):
     # 変換元のwavファイルからメルケプストラムとピッチを抽出
-     # numpyで読みやすいようにアスキー形式で保存
-    print('extract mcep ...')
-    source_mcep_file = 'source.mcep_ascii'
-    wav_to_mcep(wav_path_from, source_mcep_file, binary=False)
-    print('extract pitch ...')
+    source_mcep_file = 'source.mcep'
+    wav_to_mcep(wav_path_from, source_mcep_file)
     source_pitch_file = 'source.pitch'
     wav_to_pitch(wav_path_from, source_pitch_file)
 
@@ -75,14 +70,12 @@ def convert_voice(wav_path_from, wav_path_to, gmm_path):
 
     # 変換元のメルケプストラムをGMMで変換
     # SPTKで合成できるようにバイナリ形式で保存
-    print('convert mcep ...')
     converted_mcep_file = 'converted.mcep'
     convert_mcep(source_mcep_file, converted_mcep_file, gmm)
 
     # 変換元のピッチと変換したメルケプストラムから再合成
-    print('synthesis ...')
     synthesize_to_wav(source_pitch_file, converted_mcep_file, wav_path_to,
-                      channels=1, sampling_rate=16000, delete_temp_raw=False)
+                      channels=1, frame_rate=16000, delete_temp_raw=False)
 
     # 一時ファイルを削除
     os.remove(source_mcep_file)
