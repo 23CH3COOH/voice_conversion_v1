@@ -11,7 +11,7 @@ mcep_s = 'mcep/%s/'
 mcep_text_s = 'mcep/%s/text/'
 aligned_mcep_sss = 'mcep_aligned/%s_to_%s/%s/'
 aligned_mcep_text_sss = 'mcep_aligned/%s_to_%s/%s/text/'
-aligned_mcep_graph_ssd = 'mcep_aligned/%s_to_%s/graph/%d-th/'
+aligned_mcep_graph_sss = 'mcep_aligned/%s_to_%s/graph/%s/'
 train_ss = 'train_result/%s_to_%s/'
 wav_prod = 'wav/production/%s/'
 
@@ -20,7 +20,7 @@ gmm_file = 'GMM.gmm'
 wavf_s = '%s.wav'
 mcepf_s = '%s.mcep'
 mcep_textf_s = '%s.mcep_ascii'
-pngf_s = '%s.png'
+pngf_d = '%d-th.png'
 
 
 class VoiceConverter:
@@ -47,6 +47,7 @@ class VoiceConverter:
         self.__K = int(parsed['K'])
         self.__ch = int(parsed['channel'])
         self.__fr = int(parsed['frame_rate'])
+        self.__exc = bool(int(parsed['exclude_both_mcep_ends']))
 
     def __search_common_wav_files(self):
         wav_files_from = os.listdir(wav_s % self.__from)
@@ -107,12 +108,12 @@ class VoiceConverter:
         result_from = aligned_mcep_text_sss % (self.__from, self.__to, self.__from)
         result_to = aligned_mcep_text_sss % (self.__from, self.__to, self.__to)
 
-        for i in range(self.__m + 1):
-            outdir = aligned_mcep_graph_ssd % (self.__from, self.__to, i)
+        for file in self.__train_files:
+            outdir = aligned_mcep_graph_sss % (self.__from, self.__to, file)
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
-            for file in self.__train_files:
+            for i in range(self.__m + 1):
                 items_1 = DrawingAlignedMcepsItems()
                 items_1.name = self.__from
                 items_1.mcep_path_prev = prev_from + mcep_textf_s % file
@@ -121,7 +122,7 @@ class VoiceConverter:
                 items_2.name = self.__to
                 items_2.mcep_path_prev = prev_to + mcep_textf_s % file
                 items_2.mcep_path_result = result_to + mcep_textf_s % file
-                draw_aligned_mceps(items_1, items_2, i, outdir + pngf_s % file)
+                draw_aligned_mceps(items_1, items_2, i, outdir + pngf_d % i)
 
     def __align_mcep(self):
         outdir_from = aligned_mcep_sss % (self.__from, self.__to, self.__from)
@@ -147,7 +148,7 @@ class VoiceConverter:
         mcep_to = aligned_mcep_sss % (self.__from, self.__to, self.__to)
         paths_from = [mcep_from + mcepf_s % f for f in self.__train_files]
         paths_to = [mcep_to + mcepf_s % f for f in self.__train_files]
-        train_gmm(paths_from, paths_to, outdir, self.__m, self.__K)
+        train_gmm(paths_from, paths_to, outdir, self.__m, self.__K, self.__exc)
 
     def __convert_voice(self):
         if not os.path.exists(wav_prod % self.__to):

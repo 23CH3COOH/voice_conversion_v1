@@ -3,11 +3,13 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 from sklearn import mixture
+from correction import exclude_both_ends
 from common import read_binary_file
 
 
 '''変換元と変換先の特徴ベクトルを結合したデータを作成して返す'''
-def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
+def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim,
+                       exclude_both_ends_flag=False):
     # 0行目はvstack()するためのダミー
     X = np.zeros((1, dim))
     Y = np.zeros((1, dim))
@@ -16,6 +18,8 @@ def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
     for path_1, path_2 in zip(aligned_mcep_paths_1, aligned_mcep_paths_2):
         mcep_1 = read_binary_file(path_1, split_length=dim)
         mcep_2 = read_binary_file(path_2, split_length=dim)
+        if exclude_both_ends_flag:
+            mcep_1, mcep_2 = exclude_both_ends(mcep_1, mcep_2)
         X = np.vstack((X, mcep_1))
         Y = np.vstack((Y, mcep_2))
 
@@ -27,9 +31,11 @@ def make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, dim):
     Z = np.hstack((X, Y))
     return Z
 
-def train_gmm(aligned_mcep_paths_1, aligned_mcep_paths_2, outdir, m=25, K=32):
+def train_gmm(aligned_mcep_paths_1, aligned_mcep_paths_2, outdir,
+              m=25, K=32, exclude_both_ends_flag=False):
     # 変換元と変換先の特徴ベクトルを結合したデータを作成
-    Z = make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, m + 1)
+    Z = make_joint_vectors(aligned_mcep_paths_1, aligned_mcep_paths_2, m + 1,
+                           exclude_both_ends_flag)
 
     # バイナリ形式で保存しておく
     np.save(outdir + 'Z.npy', Z)

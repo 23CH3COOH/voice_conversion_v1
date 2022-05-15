@@ -6,7 +6,7 @@
 /mcep/*/text/*.mcep_ascii
 /mcep_aligned/*/*/*.mcep
 /mcep_aligned/*/*/text/*.mcep_ascii
-/mcep_aligned/*/graph/*-th/*.png
+/mcep_aligned/*/graph/*/*-th.png
 /train_result/*/*.png
 /train_result/*/*.gmm
 /train_result/*/*.npy
