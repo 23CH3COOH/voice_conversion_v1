@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 from sklearn import mixture
-from common import m, K, read_binary_file
+from common import read_binary_file
 
 
 '''変換元と変換先の特徴ベクトルを結合したデータを作成して返す'''

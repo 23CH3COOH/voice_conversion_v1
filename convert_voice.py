@@ -63,7 +63,7 @@ def convert_voice(wav_path_from, wav_path_to, gmm_path,
     source_mcep_file = 'source.mcep'
     wav_to_mcep(wav_path_from, source_mcep_file, m, a, e)
     source_pitch_file = 'source.pitch'
-    wav_to_pitch(wav_path_from, source_pitch_file)
+    wav_to_pitch(wav_path_from, source_pitch_file, frame_rate=16000)
 
     # GMMをロード
     gmm = joblib.load(gmm_path)
@@ -75,7 +75,7 @@ def convert_voice(wav_path_from, wav_path_to, gmm_path,
 
     # 変換元のピッチと変換したメルケプストラムから再合成
     synthesize_to_wav(source_pitch_file, converted_mcep_file, wav_path_to,
-        channels=ch, frame_rate=fr, delete_temp_raw=delete_temp_file)
+                      ch, fr, m=m, a=a, delete_temp_raw=delete_temp_file)
 
     # 一時ファイルを削除
     if delete_temp_file:
